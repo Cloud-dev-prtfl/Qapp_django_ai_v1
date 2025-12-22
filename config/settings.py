@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "core",  # Ensure your app 'core' is listed here if not already
 ]
 
 MIDDLEWARE = [
@@ -54,7 +56,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],  # Updated to include templates directory
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -115,9 +117,33 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
 STATIC_URL = "static/"
+
+# Add this setting to tell Django where to look for static files in the root folder
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Login/Logout Redirects
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+# ZOHO MAIL API CONFIGURATION
+ZOHO_CLIENT_ID = "1000.IIFBGZS6O9ZX68YKW01REKAO994L8A"
+ZOHO_CLIENT_SECRET = "ca87657211d1ec118399f64673f7832c967aea4708"
+ZOHO_MAIL_REFRESH_TOKEN = "1000.fb768640029debfaad667efa937dbc21.7b015b4e3f205427c36c7f4b4319c30d"
+ZOHO_ACCOUNTS_DOMAIN = "https://accounts.zoho.in" 
+ZOHO_MAIL_API_DOMAIN = "mail.zoho.in"
+ZOHO_MAIL_FROM = "" # Must be the verified email in Zoho
+ZOHO_MAIL_ACCOUNT_ID = "6566128000000002002"
+
+
+PASSWORD = 'vuwrab-rogny4-tipBed'

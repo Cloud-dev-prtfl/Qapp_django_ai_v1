@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard | AI Project{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1></h1>
+    <p></p>
+
+<div class="grid-container">
+    <div class="card">
+        <h3>Assessments Created</h3>
+        <div class="stat">2</div>
+        <div class="change">+2 this week</div>
+    </div>
+    <div class="card">
+        <h3>Assign to Candidates</h3>
+        <div class="stat">10</div>
+        <div class="change">+12% from yesterday</div>
+    </div>
+    <div class="card">
+        <h3>System Status</h3>
+        <div class="stat" style="color: #10b981;">Online</div>
+        <div class="change">All systems operational</div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 1.5rem; min-height: 300px;">
+    <h3>Recent Activity</h3>
+    <p style="color: #9ca3af; margin-top: 2rem; text-align: center;">No recent activity to display.</p>
+</div>
+
+{% endblock %}
