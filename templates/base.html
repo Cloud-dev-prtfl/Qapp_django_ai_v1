@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -42,15 +42,39 @@
                         <span class="nav-text">Dashboard</span>
                     </a>
                     
-                    <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        <span class="nav-text">Profile</span>
-                    </a>
+                    <div class="nav-group">
+                        <div class="nav-item submenu-toggle" onclick="toggleSubmenu('profile-menu', this)">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <span class="nav-text">Profile</span>
+                            <svg class="nav-arrow" width="16" height="16" style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="submenu {% if request.resolver_match.url_name == 'profile' %}open{% endif %}" id="profile-menu">
+                            <a href="{% url 'profile' %}#update-profile" class="nav-item sub-item" onclick="setActive(this)">
+                                <span class="nav-text">Update Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#reset-password" class="nav-item sub-item" onclick="setActive(this)">
+                                <span class="nav-text">Reset Password</span>
+                            </a>
+                        </div>
+                    </div>
 
-                    <a href="#" class="nav-item">
+                    <a href="{% url 'settings' %}" class="nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                         <span class="nav-text">Settings</span>
                     </a>
+
+                    {% if user.is_superuser %}
+                    <div style="margin: 2rem 0 0.5rem 1.5rem; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;" class="nav-text">
+                        Admin
+                    </div>
+                    
+                    <a href="{% url 'user_list' %}" class="nav-item {% if 'users' in request.path %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span class="nav-text">User Management</span>
+                    </a>
+                    {% endif %}
                 </nav>
 
                 <div class="logout-section">
@@ -65,7 +89,7 @@
             </aside>
         {% else %}
             <header class="public-header">
-                <div class="logo" style="font-weight:700; font-size: 1.2rem;">AI Project</div>
+                <div class="logo" style="font-weight:700; font-size: 1.2rem;">AI Exam Generator</div>
                 <nav>
                     {% if request.resolver_match.url_name != 'login' %}
                         <a href="{% url 'login' %}">Login</a>
@@ -93,6 +117,21 @@
             } else {
                 icon.innerHTML = '<polyline points="15 18 9 12 15 6"></polyline>'; 
             }
+        }
+
+        function toggleSubmenu(menuId, toggleElement) {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleSidebar();
+            }
+            const menu = document.getElementById(menuId);
+            menu.classList.toggle('open');
+            toggleElement.classList.toggle('open');
+        }
+
+        function setActive(element) {
+            document.querySelectorAll('.sub-item').forEach(el => el.classList.remove('active-sub'));
+            element.classList.add('active-sub');
         }
     </script>
     {% endif %}
