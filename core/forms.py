@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.db.models import Q
 
@@ -52,14 +52,26 @@ class AdminUserCreationForm(UserCreationForm):
     """
     Form for Admins to add a new user.
     Extends UserCreationForm which handles the Password 1 & 2 validation automatically.
+    Now includes Role selection.
     """
+    ROLE_CHOICES = [
+        ('User', 'User'),
+        ('Hr', 'Hr'),
+        ('Admin', 'Admin'),
+    ]
+
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-input'}))
     first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES, 
+        required=True, 
+        widget=forms.Select(attrs={'class': 'form-input'})
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['username', 'email', 'first_name', 'last_name', 'role']
         # We generally do not need manual widgets in Meta if we use the __init__ override,
         # but defining the username widget here is safe.
         widgets = {
@@ -71,3 +83,25 @@ class AdminUserCreationForm(UserCreationForm):
         # Apply the CSS class to ALL fields, including the auto-generated password fields
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-input'
+
+    def save(self, commit=True):
+        # Save the user instance first but don't commit to DB yet if commit=False
+        user = super().save(commit=False)
+        
+        selected_role = self.cleaned_data.get('role')
+
+        # Logic for Admin role to grant superuser status automatically
+        if selected_role == 'Admin':
+            user.is_superuser = True
+            user.is_staff = True
+        else:
+            user.is_superuser = False
+            user.is_staff = False
+
+        if commit:
+            user.save()
+            # Ensure the Group exists and add user to it
+            group, created = Group.objects.get_or_create(name=selected_role)
+            user.groups.add(group)
+        
+        return user

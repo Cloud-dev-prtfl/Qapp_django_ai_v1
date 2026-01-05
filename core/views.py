@@ -12,6 +12,8 @@ from django.contrib.auth.views import LoginView
 from .forms import UserUpdateForm, EmailOrUsernameAuthenticationForm, AdminUserCreationForm
 from .zoho_service import send_zoho_email
 from .models import ExamSession
+# Import the new orchestrated flow instead of individual agents
+from .ai_agents import orchestrated_exam_flow
 
 # --- CUSTOM LOGIN VIEW ---
 class CustomLoginView(LoginView):
@@ -23,6 +25,8 @@ class CustomLoginView(LoginView):
 
 @login_required
 def home(request):
+    if request.user.groups.filter(name='User').exists():
+        return render(request, "users/user_dashboard.html")
     return render(request, "home.html")
 
 @login_required
@@ -35,33 +39,24 @@ def profile(request):
             return redirect(f"{reverse('profile')}#update-profile")
     else:
         form = UserUpdateForm(instance=request.user)
-
     return render(request, 'profile.html', {'form': form})
 
 @login_required
 def settings_view(request):
-    """
-    Handles the Exam Configuration Settings.
-    GET: Renders the form, pre-filled with the last saved configuration (if any).
-    POST: Saves a NEW configuration to the Database.
-    """
     if request.method == 'POST':
         try:
-            # 1. Extract data
             difficulty = request.POST.get('level')
             experience = request.POST.get('experience')
             num_questions = request.POST.get('num_questions')
             languages = request.POST.get('languages')
             instructions = request.POST.get('instructions')
             
-            # Checkbox handling
             repeated_allowed = request.POST.get('repeated_allowed') == 'on'
             mcq = request.POST.get('mcq') == 'on'
             mcq_coding = request.POST.get('mcq_coding') == 'on'
             general_topic = request.POST.get('general_topic') == 'on'
 
-            # 2. Save NEW session
-            exam_session = ExamSession.objects.create(
+            ExamSession.objects.create(
                 user=request.user,
                 difficulty_level=difficulty,
                 experience_level=experience,
@@ -73,18 +68,48 @@ def settings_view(request):
                 coding_languages=languages,
                 specific_instructions=instructions
             )
-            
             messages.success(request, "Configuration Saved Successfully!")
-            return redirect('settings') # Stay on page to show saved state
-            
+            return redirect('settings')
         except Exception as e:
             messages.error(request, f"Error saving configuration: {str(e)}")
             return redirect('settings')
 
-    # --- GET REQUEST: FETCH LAST CONFIG ---
     last_exam = ExamSession.objects.filter(user=request.user).last()
-    
     return render(request, 'settings.html', {'last_exam': last_exam})
+
+@login_required
+def generate_exam(request):
+    """
+    Handles the Exam Generation Process with Time-Bounded Multi-Agent Flow.
+    """
+    if request.user.groups.filter(name='User').exists():
+        messages.error(request, "You are not authorized to access this page.")
+        return redirect('home')
+
+    generated_html = None 
+
+    if request.method == 'POST':
+        exam_session = ExamSession.objects.filter(user=request.user).last()
+        
+        if not exam_session:
+            messages.error(request, "No settings found. Please configure settings first.")
+            return redirect('settings')
+
+        try:
+            # --- EXECUTE COORDINATOR FLOW ---
+            # This handles Agent 1 -> Agent 2 Loop -> Timeout -> Formatting
+            generated_html = orchestrated_exam_flow(exam_session)
+            
+            if generated_html and "error" not in generated_html:
+                messages.success(request, "Exam Generated Successfully!")
+            else:
+                messages.warning(request, "Exam generated, but quality might vary due to complexity.")
+                
+        except Exception as e:
+            messages.error(request, f"System Error: {str(e)}")
+
+    # We pass 'generated_exam_html' to the template to display it
+    return render(request, 'generate_exam.html', {'generated_exam_html': generated_html})
 
 @login_required
 def trigger_password_reset(request):

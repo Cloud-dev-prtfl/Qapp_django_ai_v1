@@ -5,6 +5,7 @@ class ExamSession(models.Model):
     """
     Stores the configuration for a specific exam generation session.
     """
+    # --- EXISTING CHOICES ---
     DIFFICULTY_CHOICES = [
         ('Beginner', 'Beginner'),
         ('Medium', 'Medium'),
@@ -16,6 +17,15 @@ class ExamSession(models.Model):
         ('1-3 Years', '1 - 3 Years'),
         ('4-5 Years', '4 - 5 Years'),
         ('5+ Years', 'Above 5 Years'),
+    ]
+
+    # --- NEW STATUS CHOICES FOR ASYNC ---
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
+        ('FAILED', 'Failed'),
     ]
 
     # Link to the user who requested the exam
@@ -40,5 +50,10 @@ class ExamSession(models.Model):
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # --- NEW FIELDS FOR ASYNC PROCESS ---
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    result_html = models.TextField(blank=True, null=True)
+
     def __str__(self):
-        return f"Exam ({self.difficulty_level}) by {self.user.username} on {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+        # Merged your string format with the new status
+        return f"Exam ({self.difficulty_level}) by {self.user.username} on {self.created_at.strftime('%Y-%m-%d %H:%M')} [{self.status}]"

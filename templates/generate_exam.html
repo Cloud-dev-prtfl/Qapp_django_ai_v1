@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Generate Exam | AI Exam Generator{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* --- HEADER / BUTTON STYLES (Existing) --- */
+        .exam-header-btn {
+            width: 100%;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4), 0 8px 10px -6px rgba(79, 70, 229, 0.1);
+            color: white;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .exam-header-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.5), 0 10px 10px -5px rgba(79, 70, 229, 0.2);
+        }
+        
+        /* ... (Keep your existing decorative css for header here) ... */
+        .header-title { font-size: 2.5rem; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header-subtitle { font-size: 1.1rem; margin-top: 0.75rem; opacity: 0.9; font-weight: 500; }
+        .header-icon { font-size: 4rem; opacity: 0.2; transform: rotate(15deg); }
+        .wide-layout { max-width: 100%; padding: 0 1rem; }
+
+        /* --- AGENT 2 GENERATED CONTENT STYLES --- */
+        
+        .exam-preview-wrapper {
+            animation: slideUp 0.5s ease-out;
+            margin-top: 2rem;
+        }
+
+        .exam-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .exam-summary {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s;
+        }
+        
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-item {
+            padding: 1rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        /* Highlight Correct Answer */
+        .option-item.correct-answer {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            color: #065f46;
+            position: relative;
+        }
+        
+        .option-item.correct-answer::after {
+            content: '✔ Correct';
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: #10b981;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .explanation-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+            font-size: 0.95rem;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .badge-correct {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="wide-layout">
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; background-color: {% if 'success' in message.tags %}#ecfdf5{% else %}#fef2f2{% endif %}; color: {% if 'success' in message.tags %}#065f46{% else %}#991b1b{% endif %}; border: 1px solid {% if 'success' in message.tags %}#a7f3d0{% else %}#fecaca{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'generate_exam' %}" id="generateForm">
+        {% csrf_token %}
+        <button type="submit" class="exam-header-btn" onclick="showLoading()">
+            <div class="header-content">
+                <h1 class="header-title">Generate Exam</h1>
+                <p class="header-subtitle" id="subtitle-text">Click here to start creating a new AI-driven assessment based on your settings.</p>
+            </div>
+            <div class="header-icon" id="header-icon">
+                ✨
+            </div>
+        </button>
+    </form>
+
+    {% if generated_exam_html %}
+        <div id="exam-results-container">
+            {{ generated_exam_html|safe }}
+        </div>
+    {% endif %}
+    
+</div>
+
+<script>
+    function showLoading() {
+        const title = document.querySelector('.header-title');
+        const subtitle = document.getElementById('subtitle-text');
+        const icon = document.getElementById('header-icon');
+        
+        title.innerText = "Processing...";
+        subtitle.innerText = "Agent 1: Drafting Questions... | Agent 2: Reviewing & Formatting...";
+        icon.innerText = "⚙️";
+        icon.style.animation = "spin 2s linear infinite";
+    }
+</script>
+
+<style>
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+</style>
+{% endblock %}
