@@ -30,127 +30,48 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.5), 0 10px 10px -5px rgba(79, 70, 229, 0.2);
         }
+
+        /* --- NEW STYLES FOR CANCEL & LOCK --- */
+        .cancel-btn {
+            background: #ef4444; /* Red Background */
+            margin-top: 1rem;
+            display: none; /* Hidden by default */
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+        }
+        .cancel-btn:hover {
+            background: #dc2626;
+            box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.5);
+        }
         
-        /* ... (Keep your existing decorative css for header here) ... */
+        .locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.5);
+        }
+        
+        /* --- AGENT 2 GENERATED CONTENT STYLES (Kept Existing) --- */
+        .exam-preview-wrapper { animation: slideUp 0.5s ease-out; margin-top: 2rem; }
+        .exam-title { font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem; text-align: center; }
+        .exam-summary { text-align: center; color: #6b7280; margin-bottom: 3rem; font-size: 1.1rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .question-card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; transition: transform 0.2s; }
+        .question-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .question-text { font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .option-item { padding: 1rem 1.5rem; border: 2px solid #e5e7eb; border-radius: 8px; background-color: #f9fafb; color: #4b5563; font-weight: 500; }
+        .option-item.correct-answer { border-color: #10b981; background-color: #ecfdf5; color: #065f46; position: relative; }
+        .option-item.correct-answer::after { content: '✔ Correct'; position: absolute; top: -10px; right: 10px; background: #10b981; color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 700; }
+        .explanation-box { margin-top: 1rem; padding: 1rem; background-color: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; font-size: 0.95rem; border-radius: 0 4px 4px 0; }
+        .badge-correct { display: inline-block; background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-left: 1rem; }
+
         .header-title { font-size: 2.5rem; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-subtitle { font-size: 1.1rem; margin-top: 0.75rem; opacity: 0.9; font-weight: 500; }
         .header-icon { font-size: 4rem; opacity: 0.2; transform: rotate(15deg); }
         .wide-layout { max-width: 100%; padding: 0 1rem; }
-
-        /* --- AGENT 2 GENERATED CONTENT STYLES --- */
         
-        .exam-preview-wrapper {
-            animation: slideUp 0.5s ease-out;
-            margin-top: 2rem;
-        }
-
-        .exam-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .exam-summary {
-            text-align: center;
-            color: #6b7280;
-            margin-bottom: 3rem;
-            font-size: 1.1rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .question-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
-            transition: transform 0.2s;
-        }
-        
-        .question-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .question-text {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 1.5rem;
-            line-height: 1.5;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .option-item {
-            padding: 1rem 1.5rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            background-color: #f9fafb;
-            color: #4b5563;
-            font-weight: 500;
-        }
-
-        /* Highlight Correct Answer */
-        .option-item.correct-answer {
-            border-color: #10b981;
-            background-color: #ecfdf5;
-            color: #065f46;
-            position: relative;
-        }
-        
-        .option-item.correct-answer::after {
-            content: '✔ Correct';
-            position: absolute;
-            top: -10px;
-            right: 10px;
-            background: #10b981;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: 700;
-        }
-
-        .explanation-box {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            color: #1e40af;
-            font-size: 0.95rem;
-            border-radius: 0 4px 4px 0;
-        }
-        
-        .badge-correct {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 1rem;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 768px) {
-            .options-grid { grid-template-columns: 1fr; }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) { .options-grid { grid-template-columns: 1fr; } }
     </style>
 {% endblock %}
 
@@ -165,41 +86,133 @@
         {% endfor %}
     {% endif %}
 
-    <form method="POST" action="{% url 'generate_exam' %}" id="generateForm">
-        {% csrf_token %}
-        <button type="submit" class="exam-header-btn" onclick="showLoading()">
-            <div class="header-content">
-                <h1 class="header-title">Generate Exam</h1>
-                <p class="header-subtitle" id="subtitle-text">Click here to start creating a new AI-driven assessment based on your settings.</p>
-            </div>
-            <div class="header-icon" id="header-icon">
-                ✨
-            </div>
-        </button>
-    </form>
-
-    {% if generated_exam_html %}
-        <div id="exam-results-container">
-            {{ generated_exam_html|safe }}
+    <button id="btn-generate" class="exam-header-btn" onclick="startGeneration()">
+        <div class="header-content">
+            <h1 class="header-title">Generate Exam</h1>
+            <p class="header-subtitle" id="subtitle-text">Click here to start creating a new AI-driven assessment based on your settings.</p>
         </div>
-    {% endif %}
+        <div class="header-icon" id="header-icon">
+            ✨
+        </div>
+    </button>
+
+    <button id="btn-cancel" class="exam-header-btn cancel-btn" onclick="cancelGeneration()">
+        <div class="header-content">
+            <h1 class="header-title" style="font-size: 1.8rem;">🛑 Cancel Generation</h1>
+            <p class="header-subtitle" style="font-size: 1rem;">Stop the AI agent and reset.</p>
+        </div>
+        <div class="header-icon">🚫</div>
+    </button>
+
+    <div id="exam-results-container">
+        </div>
     
 </div>
 
 <script>
-    function showLoading() {
-        const title = document.querySelector('.header-title');
-        const subtitle = document.getElementById('subtitle-text');
-        const icon = document.getElementById('header-icon');
+    let currentSessionId = null;
+    let pollInterval = null;
+
+    function startGeneration() {
+        // 1. Lock UI
+        const genBtn = document.getElementById('btn-generate');
+        genBtn.classList.add('locked');
         
-        title.innerText = "Processing...";
-        subtitle.innerText = "Agent 1: Drafting Questions... | Agent 2: Reviewing & Formatting...";
+        const icon = document.getElementById('header-icon');
         icon.innerText = "⚙️";
         icon.style.animation = "spin 2s linear infinite";
+        
+        document.getElementById('subtitle-text').innerText = "Agent is analyzing settings and drafting questions... (You can browse away)";
+        
+        // 2. Show Cancel
+        document.getElementById('btn-cancel').style.display = 'flex';
+        document.getElementById('exam-results-container').innerHTML = '';
+
+        // 3. API Call to Start
+        fetch("{% url 'start_exam_api' %}", {
+            method: "POST",
+            headers: {"X-CSRFToken": "{{ csrf_token }}"}
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'started') {
+                currentSessionId = data.session_id;
+                // Start Polling
+                pollInterval = setInterval(checkStatus, 2000); // Check every 2s
+            } else {
+                alert("Error: " + data.message);
+                resetUI();
+            }
+        })
+        .catch(err => {
+            alert("Request failed. Please try again.");
+            resetUI();
+        });
+    }
+
+    function cancelGeneration() {
+        if (!currentSessionId) return;
+
+        const formData = new FormData();
+        formData.append('session_id', currentSessionId);
+
+        fetch("{% url 'cancel_exam_api' %}", {
+            method: "POST",
+            body: formData,
+            headers: {"X-CSRFToken": "{{ csrf_token }}"}
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Cancelled");
+            resetUI(false); // Reset UI without success message
+        });
+    }
+
+    function checkStatus() {
+        if (!currentSessionId) return;
+
+        fetch(`{% url 'check_exam_status' %}?session_id=${currentSessionId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'COMPLETED') {
+                // Success: Inject HTML
+                document.getElementById('exam-results-container').innerHTML = data.html;
+                resetUI(true); // Reset UI with success state
+            } 
+            else if (data.status === 'CANCELLED' || data.status === 'FAILED') {
+                resetUI(false);
+                document.getElementById('subtitle-text').innerText = "Process Stopped or Failed.";
+            }
+            // If PENDING or PROCESSING, do nothing, just keep polling
+        });
+    }
+
+    function resetUI(success = false) {
+        // Stop Polling
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+        currentSessionId = null;
+
+        // Unlock Generate Button
+        const genBtn = document.getElementById('btn-generate');
+        genBtn.classList.remove('locked');
+        
+        // Reset Icon Animation
+        const icon = document.getElementById('header-icon');
+        icon.style.animation = "none";
+        
+        if (success) {
+            icon.innerText = "✅";
+            document.getElementById('subtitle-text').innerText = "Exam Generated Successfully!";
+        } else {
+            icon.innerText = "✨";
+            document.getElementById('subtitle-text').innerText = "Click here to start creating a new AI-driven assessment.";
+        }
+
+        // Hide Cancel Button
+        document.getElementById('btn-cancel').style.display = 'none';
     }
 </script>
-
-<style>
-@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
-</style>
 {% endblock %}

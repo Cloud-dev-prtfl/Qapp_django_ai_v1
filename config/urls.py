@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from core import views  # Correctly import views from the core app
+from core import views 
 
 urlpatterns = [
     # --- Admin Panel ---
@@ -12,8 +12,13 @@ urlpatterns = [
     path("profile/", views.profile, name="profile"),
     path("profile/reset-password/", views.trigger_password_reset, name="trigger_password_reset"),
     path("settings/", views.settings_view, name="settings"),
-    path("generate-exam/", views.generate_exam, name="generate_exam"),
+    path("generate-exam/", views.generate_exam, name="generate_exam"), # Page Load
     
+    # --- ASYNC API ENDPOINTS (This was missing) ---
+    path("api/exam/start/", views.start_exam_generation, name="start_exam_api"),
+    path("api/exam/cancel/", views.cancel_exam_generation, name="cancel_exam_api"),
+    path("api/exam/status/", views.check_exam_status, name="check_exam_status"),
+
     # --- Authentication ---
     path("login/", views.CustomLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
@@ -23,7 +28,7 @@ urlpatterns = [
     path("users/add/", views.user_add, name="user_add"),
     path("users/delete/<int:pk>/", views.user_delete, name="user_delete"),
 
-    # --- Password Reset Paths (Required for the link in trigger_password_reset) ---
+    # --- Password Reset ---
     path("accounts/reset/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
     path("accounts/reset/done/", auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
 ]

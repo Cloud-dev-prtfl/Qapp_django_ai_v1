@@ -1,3 +1,4 @@
+import threading # Required for background task
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -8,11 +9,12 @@ from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.views import LoginView
+from django.http import JsonResponse # Required for AJAX
 
 from .forms import UserUpdateForm, EmailOrUsernameAuthenticationForm, AdminUserCreationForm
 from .zoho_service import send_zoho_email
 from .models import ExamSession
-# Import the new orchestrated flow instead of individual agents
+# Import the new orchestrated flow
 from .ai_agents import orchestrated_exam_flow
 
 # --- CUSTOM LOGIN VIEW ---
@@ -77,39 +79,92 @@ def settings_view(request):
     last_exam = ExamSession.objects.filter(user=request.user).last()
     return render(request, 'settings.html', {'last_exam': last_exam})
 
+# --- ASYNC EXAM GENERATION VIEWS ---
+
 @login_required
 def generate_exam(request):
     """
-    Handles the Exam Generation Process with Time-Bounded Multi-Agent Flow.
+    Renders the Generate Exam page. 
+    The actual generation is now handled via AJAX calls to start_exam_generation.
     """
     if request.user.groups.filter(name='User').exists():
         messages.error(request, "You are not authorized to access this page.")
         return redirect('home')
+    
+    # Just render the template; the frontend handles the rest
+    return render(request, 'generate_exam.html')
 
-    generated_html = None 
-
+@login_required
+def start_exam_generation(request):
+    """
+    AJAX Endpoint: Starts the background thread for exam generation.
+    """
     if request.method == 'POST':
-        exam_session = ExamSession.objects.filter(user=request.user).last()
+        # 1. Retrieve the last valid settings (exclude any currently processing ones)
+        last_config = ExamSession.objects.filter(user=request.user).exclude(status='PROCESSING').last()
         
-        if not exam_session:
-            messages.error(request, "No settings found. Please configure settings first.")
-            return redirect('settings')
+        if not last_config:
+            return JsonResponse({'status': 'error', 'message': 'Please save Settings first.'})
 
+        # 2. Create a NEW session for this specific run
+        new_session = ExamSession.objects.create(
+            user=request.user,
+            difficulty_level=last_config.difficulty_level,
+            experience_level=last_config.experience_level,
+            num_questions=last_config.num_questions,
+            coding_languages=last_config.coding_languages,
+            specific_instructions=last_config.specific_instructions,
+            mcq_format=last_config.mcq_format,
+            mcq_coding_format=last_config.mcq_coding_format,
+            general_topic=last_config.general_topic,
+            repeated_questions_allowed=last_config.repeated_questions_allowed, # ADDED THIS LINE
+            status='PENDING' 
+        )
+
+        # 3. Start the Background Thread
+        thread = threading.Thread(target=orchestrated_exam_flow, args=(new_session.id,))
+        thread.daemon = True 
+        thread.start()
+
+        return JsonResponse({'status': 'started', 'session_id': new_session.id})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@login_required
+def cancel_exam_generation(request):
+    """
+    AJAX Endpoint: Marks a session as CANCELLED.
+    """
+    if request.method == 'POST':
+        session_id = request.POST.get('session_id')
+        if session_id:
+            try:
+                session = ExamSession.objects.get(id=session_id, user=request.user)
+                session.status = 'CANCELLED'
+                session.save()
+                return JsonResponse({'status': 'cancelled'})
+            except ExamSession.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Session not found'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+@login_required
+def check_exam_status(request):
+    """
+    AJAX Endpoint: Polling to check current status.
+    """
+    session_id = request.GET.get('session_id')
+    if session_id:
         try:
-            # --- EXECUTE COORDINATOR FLOW ---
-            # This handles Agent 1 -> Agent 2 Loop -> Timeout -> Formatting
-            generated_html = orchestrated_exam_flow(exam_session)
-            
-            if generated_html and "error" not in generated_html:
-                messages.success(request, "Exam Generated Successfully!")
-            else:
-                messages.warning(request, "Exam generated, but quality might vary due to complexity.")
-                
-        except Exception as e:
-            messages.error(request, f"System Error: {str(e)}")
+            session = ExamSession.objects.get(id=session_id, user=request.user)
+            return JsonResponse({
+                'status': session.status,
+                'html': session.result_html if session.status == 'COMPLETED' else None
+            })
+        except ExamSession.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Not found'})
+    return JsonResponse({'status': 'error'}, status=400)
 
-    # We pass 'generated_exam_html' to the template to display it
-    return render(request, 'generate_exam.html', {'generated_exam_html': generated_html})
+# --- PASSWORD RESET & ADMIN VIEWS (UNCHANGED) ---
 
 @login_required
 def trigger_password_reset(request):
@@ -142,7 +197,6 @@ def trigger_password_reset(request):
         
     return redirect(f"{reverse('profile')}#reset-password")
 
-# --- ADMIN VIEWS ---
 def is_admin(user):
     return user.is_superuser
 
