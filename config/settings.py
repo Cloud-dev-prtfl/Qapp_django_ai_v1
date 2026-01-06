@@ -125,8 +125,3 @@ ZOHO_MAIL_ACCOUNT_ID = "6566128000000002002"
 # PASSWORD = 'vuwrab-rogny4-tipBed'
 
 # newuser   i3SRHQ8XH2VxBcG
-
-
-# Gemini API key 
-
-GEMINI_API_KEY = 'AIzaSyBpgsInhPtpDlUDfJoGDoHJb5NpYHaJNA8'
